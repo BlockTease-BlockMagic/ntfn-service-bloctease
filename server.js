@@ -49,7 +49,7 @@ app.get('/send-email', async (req, res) => {
                 res.status(500).send('Error sending email');
             } else {
                 console.log('Email sent: ' + info.response);
-                res.status(200).json({success: true, message: 'Email successfully sent', error:{}});
+                res.status(200).json({success: true, message: 'Email successfully sent', data:{}});
             }
         });
     } catch (error) {
