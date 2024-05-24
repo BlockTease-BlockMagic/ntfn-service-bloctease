@@ -7,13 +7,10 @@ const port = 3001;
 
 // Email configuration
 const transporter = nodemailer.createTransport({
-  service: "Gmail",
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
+  service: 'gmail',
   auth: {
     user: 'blocktease@gmail.com', 
-    pass: process.env.APP_PASS
+    pass: 'xewimeyzveeavosg' 
   }
 });
 
@@ -56,6 +53,7 @@ app.get('/send-email', async (req, res) => {
             }
         });
     } catch (error) {
+      console.log(error)
         console.error('Error in sending email:', error);
         res.status(500).json({ success: false, message: 'Failed to send email', error: error.message });
     }
