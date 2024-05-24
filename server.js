@@ -7,14 +7,18 @@ const port = 3001;
 
 // Email configuration
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: "Gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: {
     user: 'blocktease@gmail.com', 
-    pass: process.env.APP_PASS 
+    pass: process.env.APP_PASS
   }
 });
 
 app.get('/send-email', async (req, res) => {
+  
     const { wallet_address, tokenId } = req.query;
 
     try {
