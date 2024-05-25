@@ -15,19 +15,24 @@ const transporter = nodemailer.createTransport({
 });
 
 app.get('/send-email', async (req, res) => {
-  
-    const { wallet_address, tokenId } = req.query;
+  let { wallet_address, tokenId } = req.query;
 
-    try {
-        const userInfoResponse = await axios.get(`https://db-graph-backend.onrender.com/api/user-model-info?wallet_address=${wallet_address}&tokenId=${tokenId}`);
-        const { user, model } = userInfoResponse.data.data;
-        const modelSlug = model.name.replace(/ /g, '_');
+  try {
+      // Validate and format wallet address
+      if (!wallet_address.startsWith('0x')) {
+          wallet_address = '0x' + wallet_address;
+      }
+      const userInfoUrl = `https://db-graph-backend.onrender.com/api/user-model-info?wallet_address=${wallet_address}&tokenId=${tokenId}`;
+      const userInfoResponse = await axios.get(userInfoUrl);
+      const { user, model } = userInfoResponse.data.data;
 
-        const ipfsResponse = await axios.get(model.ipfsUrl);
-        const { image } = ipfsResponse.data;
+      const modelSlug = model.name.replace(/ /g, '_');
 
-        // Prepare and send the email
-        const mailOptions = {
+      const ipfsResponse = await axios.get(model.ipfsUrl);
+      const { image } = ipfsResponse.data;
+
+      // Prepare and send the email
+      const mailOptions = {
           from: 'blocktease@gmail.com',
           to: user.email,
           subject: `🌟 ${model.name} is waiting! 🌟`,
@@ -41,22 +46,20 @@ app.get('/send-email', async (req, res) => {
               <p>Cheers to more unforgettable experiences,<br>The BlockTease Team 🥂</p>
           `
       };
-      
 
-        transporter.sendMail(mailOptions, function(error, info){
-            if (error) {
-                console.log(error);
-                res.status(500).send('Error sending email');
-            } else {
-                console.log('Email sent: ' + info.response);
-                res.status(200).json({success: true, message: 'Email successfully sent', data:{}});
-            }
-        });
-    } catch (error) {
-      console.log(error)
-        console.error('Error in sending email:', error);
-        res.status(500).json({ success: false, message: 'Failed to send email', error: error.message });
-    }
+      transporter.sendMail(mailOptions, function(error, info){
+          if (error) {
+              console.log(error);
+              res.status(500).send('Error sending email');
+          } else {
+              console.log('Email sent: ' + info.response);
+              res.status(200).json({success: true, message: 'Email successfully sent'});
+          }
+      });
+  } catch (error) {
+      console.log(error);
+      res.status(500).json({ success: false, message: 'Failed to send email', error: error.message });
+  }
 });
 
 app.listen(port, () => {
